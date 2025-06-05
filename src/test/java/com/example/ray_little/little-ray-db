@@ -1,0 +1,937 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 17.5
+-- Dumped by pg_dump version 17.4
+
+-- Started on 2025-06-05 15:07:46
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- TOC entry 4 (class 2615 OID 2200)
+-- Name: public; Type: SCHEMA; Schema: -; Owner: pg_database_owner
+--
+
+CREATE SCHEMA public;
+
+
+ALTER SCHEMA public OWNER TO pg_database_owner;
+
+--
+-- TOC entry 4998 (class 0 OID 0)
+-- Dependencies: 4
+-- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: pg_database_owner
+--
+
+COMMENT ON SCHEMA public IS 'standard public schema';
+
+
+--
+-- TOC entry 233 (class 1255 OID 16538)
+-- Name: update_role_modified_column(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.update_role_modified_column() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION public.update_role_modified_column() OWNER TO postgres;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- TOC entry 222 (class 1259 OID 16428)
+-- Name: categories; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.categories (
+    id bigint NOT NULL,
+    name character varying(255) NOT NULL,
+    description character varying(255),
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE public.categories OWNER TO postgres;
+
+--
+-- TOC entry 221 (class 1259 OID 16427)
+-- Name: categories_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.categories_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.categories_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 4999 (class 0 OID 0)
+-- Dependencies: 221
+-- Name: categories_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.categories_id_seq OWNED BY public.categories.id;
+
+
+--
+-- TOC entry 228 (class 1259 OID 16505)
+-- Name: orders; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.orders (
+    id integer NOT NULL,
+    user_id integer,
+    fullname character varying(100) DEFAULT ''::character varying,
+    phone_number character varying(20) NOT NULL,
+    address character varying(200) NOT NULL,
+    note character varying(100) DEFAULT ''::character varying,
+    order_date timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    status character varying(20),
+    total_money numeric,
+    CONSTRAINT orders_total_money_check CHECK ((total_money >= (0)::numeric))
+);
+
+
+ALTER TABLE public.orders OWNER TO postgres;
+
+--
+-- TOC entry 227 (class 1259 OID 16504)
+-- Name: orders_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.orders_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.orders_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 5000 (class 0 OID 0)
+-- Dependencies: 227
+-- Name: orders_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.orders_id_seq OWNED BY public.orders.id;
+
+
+--
+-- TOC entry 224 (class 1259 OID 16440)
+-- Name: products; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.products (
+    id bigint NOT NULL,
+    name character varying(255) NOT NULL,
+    description text,
+    price double precision NOT NULL,
+    stock_quantity integer DEFAULT 0,
+    category_id bigint NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    thumbnail character varying(255),
+    best_seller boolean,
+    CONSTRAINT products_price_check CHECK ((price >= ((0)::numeric)::double precision)),
+    CONSTRAINT products_stock_quantity_check CHECK ((stock_quantity >= 0))
+);
+
+
+ALTER TABLE public.products OWNER TO postgres;
+
+--
+-- TOC entry 223 (class 1259 OID 16439)
+-- Name: products_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.products_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.products_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 5001 (class 0 OID 0)
+-- Dependencies: 223
+-- Name: products_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.products_id_seq OWNED BY public.products.id;
+
+
+--
+-- TOC entry 230 (class 1259 OID 16526)
+-- Name: roles; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.roles (
+    id bigint NOT NULL,
+    name character varying(255) NOT NULL,
+    description character varying(255),
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE public.roles OWNER TO postgres;
+
+--
+-- TOC entry 229 (class 1259 OID 16525)
+-- Name: roles_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.roles_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.roles_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 5002 (class 0 OID 0)
+-- Dependencies: 229
+-- Name: roles_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.roles_id_seq OWNED BY public.roles.id;
+
+
+--
+-- TOC entry 220 (class 1259 OID 16415)
+-- Name: social_account; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.social_account (
+    id integer NOT NULL,
+    provider character varying(50) NOT NULL,
+    provider_user_id character varying(100),
+    email character varying(100),
+    name character varying(100),
+    user_id integer NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE public.social_account OWNER TO postgres;
+
+--
+-- TOC entry 219 (class 1259 OID 16414)
+-- Name: social_account_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.social_account_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.social_account_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 5003 (class 0 OID 0)
+-- Dependencies: 219
+-- Name: social_account_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.social_account_id_seq OWNED BY public.social_account.id;
+
+
+--
+-- TOC entry 232 (class 1259 OID 16561)
+-- Name: token; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.token (
+    id integer NOT NULL,
+    created_at timestamp(6) with time zone NOT NULL,
+    device_info character varying(255),
+    expired_at timestamp(6) with time zone NOT NULL,
+    ip_address character varying(45),
+    revoked boolean NOT NULL,
+    revoked_at timestamp(6) with time zone,
+    token character varying(255),
+    token_type character varying(50) NOT NULL,
+    user_id bigint NOT NULL
+);
+
+
+ALTER TABLE public.token OWNER TO postgres;
+
+--
+-- TOC entry 231 (class 1259 OID 16560)
+-- Name: token_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.token ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME public.token_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- TOC entry 226 (class 1259 OID 16484)
+-- Name: tokens; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.tokens (
+    id integer NOT NULL,
+    user_id integer NOT NULL,
+    token character varying(255) NOT NULL,
+    token_type character varying(50) NOT NULL,
+    expired_at timestamp with time zone NOT NULL,
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+    revoked boolean DEFAULT false,
+    revoked_at timestamp with time zone,
+    divice_info text,
+    ip_address character varying(45)
+);
+
+
+ALTER TABLE public.tokens OWNER TO postgres;
+
+--
+-- TOC entry 225 (class 1259 OID 16483)
+-- Name: tokens_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.tokens_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.tokens_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 5004 (class 0 OID 0)
+-- Dependencies: 225
+-- Name: tokens_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.tokens_id_seq OWNED BY public.tokens.id;
+
+
+--
+-- TOC entry 218 (class 1259 OID 16390)
+-- Name: users; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.users (
+    id bigint NOT NULL,
+    user_name character varying(50) NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    phone_number character varying(20),
+    address character varying(255),
+    password character varying(255) NOT NULL,
+    date_of_birth timestamp(6) without time zone,
+    facebook_account_id integer,
+    google_account_id integer,
+    role_id bigint NOT NULL
+);
+
+
+ALTER TABLE public.users OWNER TO postgres;
+
+--
+-- TOC entry 217 (class 1259 OID 16389)
+-- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.users_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.users_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 5005 (class 0 OID 0)
+-- Dependencies: 217
+-- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
+
+
+--
+-- TOC entry 4782 (class 2604 OID 16457)
+-- Name: categories id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.categories ALTER COLUMN id SET DEFAULT nextval('public.categories_id_seq'::regclass);
+
+
+--
+-- TOC entry 4790 (class 2604 OID 16508)
+-- Name: orders id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.orders ALTER COLUMN id SET DEFAULT nextval('public.orders_id_seq'::regclass);
+
+
+--
+-- TOC entry 4784 (class 2604 OID 16618)
+-- Name: products id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.products ALTER COLUMN id SET DEFAULT nextval('public.products_id_seq'::regclass);
+
+
+--
+-- TOC entry 4794 (class 2604 OID 16529)
+-- Name: roles id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.roles ALTER COLUMN id SET DEFAULT nextval('public.roles_id_seq'::regclass);
+
+
+--
+-- TOC entry 4780 (class 2604 OID 16418)
+-- Name: social_account id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.social_account ALTER COLUMN id SET DEFAULT nextval('public.social_account_id_seq'::regclass);
+
+
+--
+-- TOC entry 4787 (class 2604 OID 16487)
+-- Name: tokens id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.tokens ALTER COLUMN id SET DEFAULT nextval('public.tokens_id_seq'::regclass);
+
+
+--
+-- TOC entry 4778 (class 2604 OID 16568)
+-- Name: users id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_id_seq'::regclass);
+
+
+--
+-- TOC entry 4982 (class 0 OID 16428)
+-- Dependencies: 222
+-- Data for Name: categories; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.categories (id, name, description, created_at) FROM stdin;
+1	Blankets	Soft and warm blankets for all ages	2025-05-28 14:45:04.829255
+2	Cushions	Comfortable cushions for home décor	2025-05-28 14:45:04.829255
+3	Prints	Artistic and playful wall prints	2025-05-28 14:45:04.829255
+4	Plates	Colorful and themed plates for kids	2025-05-28 14:45:04.829255
+5	Toys	Educational and fun wooden toys	2025-05-28 14:45:04.829255
+\.
+
+
+--
+-- TOC entry 4988 (class 0 OID 16505)
+-- Dependencies: 228
+-- Data for Name: orders; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.orders (id, user_id, fullname, phone_number, address, note, order_date, status, total_money) FROM stdin;
+\.
+
+
+--
+-- TOC entry 4984 (class 0 OID 16440)
+-- Dependencies: 224
+-- Data for Name: products; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.products (id, name, description, price, stock_quantity, category_id, created_at, thumbnail, best_seller) FROM stdin;
+1	Cozy Bear Blanket	\N	45	0	1	2025-05-28 14:31:34.982408	assets/products/blankket-white.jpg	t
+2	Starry Sky Blanket	\N	55	0	1	2025-05-28 14:31:34.982408	assets/products/blanket-brown.jpg	f
+3	Fluffy Dream Cushion	\N	30	0	2	2025-05-28 14:31:34.982408	assets/products/pilow-stone-1.jpg	t
+4	Ocean Waves Cushion	\N	17	0	2	2025-05-28 14:31:34.982408	assets/products/Sunny-Day-Cushion.jpg	f
+5	Cute Fox Print	\N	75	0	3	2025-05-28 14:31:34.982408	assets/products/fox.jpg	f
+6	Rainbow Plate	\N	120	0	4	2025-05-28 14:31:34.982408	assets/products/troller-grey.jpg	t
+7	Abstract Art Print	\N	95	0	3	2025-05-28 14:31:34.982408	assets/products/I'm-a-product-green.jpg	f
+8	Happy Fox Print	\N	100	0	3	2025-05-28 14:31:34.982408	assets/products/I'm-a-product-blue.jpg	f
+9	Wooden Bunny Toy	\N	40	0	5	2025-05-28 14:31:34.982408	assets/products/wood-house.jpg	f
+10	Stacking Rings Toy	\N	38	0	5	2025-05-28 14:31:34.982408	assets/products/wood-hourse.jpg	t
+11	Polar Bear Blanket	\N	160	0	1	2025-05-28 14:31:34.982408	assets/products/blanket.jpg	f
+12	Moonlight Cushion	\N	85	0	2	2025-05-28 14:31:34.982408	assets/products/pilow-stone-2.jpg	f
+13	Little Whale Plate	\N	150	0	4	2025-05-28 14:31:34.982408	assets/products/dish-cloud-rainy.jpg	f
+14	Magic Forest Print	\N	204	0	4	2025-05-28 14:31:34.982408	assets/products/Littel-Fox-Plate.jpg	f
+15	Bear Puzzle Art	\N	230	0	3	2025-05-28 14:31:34.982408	assets/products/bear.jpg	f
+16	Animal Parade Cushion	\N	129	0	2	2025-05-28 14:31:34.982408	assets/products/pilow-stone-3.jpg	t
+17	Space Adventure Blanket	\N	150	0	1	2025-05-28 14:31:34.982408	assets/products/pilow.jpg	f
+18	Color Splash Print	\N	127	0	4	2025-05-28 14:31:34.982408	assets/products/Littel-Fox-Plate-Pink.jpg	f
+19	Elephant Plate	\N	109	0	4	2025-05-28 14:31:34.982408	assets/products/troller-brown.jpg	f
+20	Rocket Ship Toy	\N	250	0	5	2025-05-28 14:31:34.982408	assets/products/Adventures-Teepee-Tent.jpg	f
+21	Lightweight Wool Computer	\N	97.77	0	3	2025-05-30 10:12:04.074923	https://picsum.photos/208/260?random=0	t
+22	Gorgeous Wooden Wallet	\N	110.82	0	2	2025-05-30 10:12:10.884297	https://picsum.photos/208/260?random=1	f
+23	Enormous Cotton Keyboard	\N	16.48	0	4	2025-05-30 10:12:10.892638	https://picsum.photos/208/260?random=2	f
+24	Awesome Wool Clock	\N	128.06	0	3	2025-05-30 10:12:10.897922	https://picsum.photos/208/260?random=3	f
+25	Incredible Steel Shirt	\N	106.42	0	3	2025-05-30 10:12:10.907234	https://picsum.photos/208/260?random=4	f
+26	Fantastic Iron Clock	\N	208.4	0	2	2025-05-30 10:12:10.914542	https://picsum.photos/208/260?random=5	t
+27	Mediocre Concrete Knife	\N	48.4	0	1	2025-05-30 10:12:10.92392	https://picsum.photos/208/260?random=6	f
+28	Incredible Cotton Plate	\N	213.21	0	5	2025-05-30 10:12:10.935499	https://picsum.photos/208/260?random=7	t
+29	Synergistic Wool Shoes	\N	105.25	0	1	2025-05-30 10:12:10.942469	https://picsum.photos/208/260?random=8	t
+30	Gorgeous Paper Plate	\N	201.43	0	2	2025-05-30 10:12:10.949926	https://picsum.photos/208/260?random=9	t
+31	Heavy Duty Concrete Car	\N	182.85	0	1	2025-05-30 10:12:10.959701	https://picsum.photos/208/260?random=10	f
+32	Synergistic Copper Knife	\N	206.12	0	1	2025-05-30 10:12:10.968591	https://picsum.photos/208/260?random=11	t
+33	Intelligent Rubber Bottle	\N	167.64	0	2	2025-05-30 10:12:10.977088	https://picsum.photos/208/260?random=12	f
+34	Rustic Copper Knife	\N	200.33	0	1	2025-05-30 10:12:10.983948	https://picsum.photos/208/260?random=13	f
+35	Ergonomic Marble Bottle	\N	136.37	0	3	2025-05-30 10:12:10.99332	https://picsum.photos/208/260?random=14	t
+36	Enormous Linen Watch	\N	168.56	0	2	2025-05-30 10:12:11.001397	https://picsum.photos/208/260?random=15	f
+37	Mediocre Rubber Hat	\N	14.54	0	5	2025-05-30 10:12:11.013629	https://picsum.photos/208/260?random=16	f
+38	Small Steel Wallet	\N	137.15	0	3	2025-05-30 10:12:11.020081	https://picsum.photos/208/260?random=17	t
+39	Mediocre Linen Bottle	\N	217.6	0	1	2025-05-30 10:12:11.02715	https://picsum.photos/208/260?random=18	f
+40	Mediocre Paper Clock	\N	190.85	0	3	2025-05-30 10:12:11.031647	https://picsum.photos/208/260?random=19	f
+41	Gorgeous Cotton Gloves	\N	10.96	0	4	2025-05-30 10:12:11.036394	https://picsum.photos/208/260?random=20	t
+42	Fantastic Paper Bag	\N	244.01	0	3	2025-05-30 10:12:11.043125	https://picsum.photos/208/260?random=21	t
+43	Lightweight Iron Clock	\N	70.63	0	1	2025-05-30 10:12:11.049461	https://picsum.photos/208/260?random=22	f
+44	Enormous Steel Car	\N	49.72	0	1	2025-05-30 10:12:11.055415	https://picsum.photos/208/260?random=23	f
+45	Mediocre Cotton Coat	\N	145.72	0	5	2025-05-30 10:12:11.062059	https://picsum.photos/208/260?random=24	t
+46	Rustic Leather Hat	\N	245.03	0	1	2025-05-30 10:12:11.072077	https://picsum.photos/208/260?random=25	t
+47	Aerodynamic Rubber Watch	\N	158.24	0	3	2025-05-30 10:12:11.076145	https://picsum.photos/208/260?random=26	f
+48	Synergistic Bronze Knife	\N	230.23	0	3	2025-05-30 10:12:11.079869	https://picsum.photos/208/260?random=27	t
+49	Awesome Leather Knife	\N	132.12	0	4	2025-05-30 10:12:11.084276	https://picsum.photos/208/260?random=28	f
+50	Gorgeous Steel Keyboard	\N	140.28	0	4	2025-05-30 10:12:11.090358	https://picsum.photos/208/260?random=29	f
+51	Ergonomic Marble Bottle	\N	233.96	0	5	2025-05-30 10:12:11.095476	https://picsum.photos/208/260?random=30	f
+52	Enormous Marble Bottle	\N	21.32	0	2	2025-05-30 10:12:11.100664	https://picsum.photos/208/260?random=31	f
+53	Aerodynamic Iron Lamp	\N	239.85	0	2	2025-05-30 10:12:11.11146	https://picsum.photos/208/260?random=32	f
+54	Gorgeous Concrete Table	\N	164.42	0	5	2025-05-30 10:12:11.115509	https://picsum.photos/208/260?random=33	t
+55	Awesome Marble Wallet	\N	88.15	0	4	2025-05-30 10:12:11.119457	https://picsum.photos/208/260?random=34	t
+56	Aerodynamic Marble Plate	\N	96.64	0	3	2025-05-30 10:12:11.123873	https://picsum.photos/208/260?random=35	f
+57	Mediocre Paper Computer	\N	111.9	0	4	2025-05-30 10:12:11.128477	https://picsum.photos/208/260?random=36	f
+58	Incredible Cotton Shoes	\N	160.99	0	1	2025-05-30 10:12:11.133538	https://picsum.photos/208/260?random=37	f
+59	Synergistic Copper Watch	\N	58.83	0	3	2025-05-30 10:12:11.137487	https://picsum.photos/208/260?random=38	t
+60	Ergonomic Granite Bench	\N	91.19	0	1	2025-05-30 10:12:11.141278	https://picsum.photos/208/260?random=39	f
+61	Practical Silk Gloves	\N	15.49	0	3	2025-05-30 10:12:11.145466	https://picsum.photos/208/260?random=40	f
+62	Lightweight Leather Shoes	\N	197.44	0	4	2025-05-30 10:12:11.152987	https://picsum.photos/208/260?random=41	f
+63	Incredible Steel Lamp	\N	172.35	0	1	2025-05-30 10:12:11.161367	https://picsum.photos/208/260?random=42	t
+64	Gorgeous Wooden Chair	\N	42.45	0	1	2025-05-30 10:12:11.168266	https://picsum.photos/208/260?random=43	t
+65	Synergistic Aluminum Car	\N	97.8	0	5	2025-05-30 10:12:11.17167	https://picsum.photos/208/260?random=44	f
+66	Enormous Cotton Shoes	\N	164.86	0	2	2025-05-30 10:12:11.175191	https://picsum.photos/208/260?random=45	t
+67	Ergonomic Leather Hat	\N	144.55	0	4	2025-05-30 10:12:11.178087	https://picsum.photos/208/260?random=46	t
+68	Enormous Steel Shoes	\N	71.75	0	5	2025-05-30 10:12:11.180613	https://picsum.photos/208/260?random=47	t
+69	Heavy Duty Marble Lamp	\N	130	0	1	2025-05-30 10:12:11.183821	https://picsum.photos/208/260?random=48	f
+70	Small Steel Clock	\N	183.82	0	4	2025-05-30 10:12:11.186411	https://picsum.photos/208/260?random=49	t
+71	Incredible Copper Hat	\N	92.26	0	1	2025-05-30 10:12:11.189823	https://picsum.photos/208/260?random=50	t
+72	Fantastic Granite Coat	\N	191.77	0	5	2025-05-30 10:12:11.1923	https://picsum.photos/208/260?random=51	t
+73	Enormous Cotton Computer	\N	102.98	0	3	2025-05-30 10:12:11.194615	https://picsum.photos/208/260?random=52	f
+74	Durable Rubber Chair	\N	175.71	0	1	2025-05-30 10:12:11.197297	https://picsum.photos/208/260?random=53	t
+75	Rustic Wooden Bag	\N	82.74	0	1	2025-05-30 10:12:11.199904	https://picsum.photos/208/260?random=54	f
+76	Small Rubber Bag	\N	242.04	0	1	2025-05-30 10:12:11.202254	https://picsum.photos/208/260?random=55	t
+77	Mediocre Steel Keyboard	\N	152.9	0	4	2025-05-30 10:12:11.205223	https://picsum.photos/208/260?random=56	f
+78	Small Bronze Chair	\N	73.38	0	3	2025-05-30 10:12:11.207922	https://picsum.photos/208/260?random=57	t
+79	Intelligent Concrete Keyboard	\N	110.27	0	5	2025-05-30 10:12:11.211128	https://picsum.photos/208/260?random=58	t
+80	Incredible Steel Chair	\N	202.56	0	3	2025-05-30 10:12:11.213711	https://picsum.photos/208/260?random=59	t
+81	Heavy Duty Rubber Knife	\N	222.41	0	5	2025-05-30 10:12:11.21621	https://picsum.photos/208/260?random=60	t
+82	Enormous Copper Gloves	\N	150.04	0	3	2025-05-30 10:12:11.218819	https://picsum.photos/208/260?random=61	f
+83	Awesome Wooden Clock	\N	241.04	0	3	2025-05-30 10:12:11.222023	https://picsum.photos/208/260?random=62	f
+84	Mediocre Rubber Clock	\N	191.39	0	5	2025-05-30 10:12:11.224599	https://picsum.photos/208/260?random=63	f
+85	Practical Paper Hat	\N	194.79	0	1	2025-05-30 10:12:11.227035	https://picsum.photos/208/260?random=64	t
+86	Lightweight Cotton Bag	\N	90.3	0	4	2025-05-30 10:12:11.229463	https://picsum.photos/208/260?random=65	f
+87	Heavy Duty Leather Computer	\N	218.55	0	4	2025-05-30 10:12:11.232224	https://picsum.photos/208/260?random=66	f
+88	Small Rubber Computer	\N	74.62	0	1	2025-05-30 10:12:11.237227	https://picsum.photos/208/260?random=67	t
+89	Rustic Wooden Wallet	\N	33.72	0	4	2025-05-30 10:12:11.241372	https://picsum.photos/208/260?random=68	t
+90	Incredible Silk Shirt	\N	38.29	0	3	2025-05-30 10:12:11.244865	https://picsum.photos/208/260?random=69	t
+91	Small Aluminum Hat	\N	180.31	0	3	2025-05-30 10:12:11.247663	https://picsum.photos/208/260?random=70	t
+92	Ergonomic Steel Pants	\N	113.08	0	5	2025-05-30 10:12:11.250218	https://picsum.photos/208/260?random=71	f
+93	Rustic Iron Clock	\N	153.82	0	1	2025-05-30 10:12:11.252791	https://picsum.photos/208/260?random=72	f
+94	Gorgeous Steel Gloves	\N	196.4	0	1	2025-05-30 10:12:11.256799	https://picsum.photos/208/260?random=73	f
+95	Sleek Silk Pants	\N	193.96	0	4	2025-05-30 10:12:11.260828	https://picsum.photos/208/260?random=74	t
+96	Fantastic Plastic Knife	\N	193.21	0	2	2025-05-30 10:12:11.264879	https://picsum.photos/208/260?random=75	f
+97	Fantastic Concrete Lamp	\N	180.14	0	3	2025-05-30 10:12:11.268403	https://picsum.photos/208/260?random=76	t
+98	Heavy Duty Steel Wallet	\N	113.44	0	2	2025-05-30 10:12:11.272644	https://picsum.photos/208/260?random=77	f
+99	Lightweight Rubber Clock	\N	108.82	0	5	2025-05-30 10:12:11.276439	https://picsum.photos/208/260?random=78	t
+100	Small Granite Clock	\N	116.93	0	2	2025-05-30 10:12:11.280143	https://picsum.photos/208/260?random=79	f
+101	Practical Wool Coat	\N	23.12	0	2	2025-05-30 10:12:11.283788	https://picsum.photos/208/260?random=80	t
+102	Heavy Duty Copper Clock	\N	67.02	0	4	2025-05-30 10:12:11.287602	https://picsum.photos/208/260?random=81	t
+103	Practical Iron Plate	\N	49.52	0	3	2025-05-30 10:12:11.291127	https://picsum.photos/208/260?random=82	f
+104	Small Plastic Keyboard	\N	224.19	0	5	2025-05-30 10:12:11.294596	https://picsum.photos/208/260?random=83	t
+105	Gorgeous Paper Bottle	\N	145.38	0	3	2025-05-30 10:12:11.298156	https://picsum.photos/208/260?random=84	t
+106	Sleek Bronze Bottle	\N	222.97	0	3	2025-05-30 10:12:11.301491	https://picsum.photos/208/260?random=85	f
+107	Ergonomic Wooden Hat	\N	87.18	0	3	2025-05-30 10:12:11.305545	https://picsum.photos/208/260?random=86	t
+108	Small Marble Plate	\N	142.22	0	1	2025-05-30 10:12:11.310285	https://picsum.photos/208/260?random=87	f
+109	Awesome Paper Coat	\N	106.1	0	3	2025-05-30 10:12:11.314297	https://picsum.photos/208/260?random=88	f
+110	Incredible Silk Hat	\N	70.9	0	4	2025-05-30 10:12:11.319201	https://picsum.photos/208/260?random=89	f
+111	Gorgeous Linen Computer	\N	65.53	0	3	2025-05-30 10:12:11.323601	https://picsum.photos/208/260?random=90	f
+112	Mediocre Plastic Hat	\N	155.92	0	5	2025-05-30 10:12:11.327639	https://picsum.photos/208/260?random=91	f
+113	Enormous Paper Lamp	\N	245.02	0	1	2025-05-30 10:12:11.330746	https://picsum.photos/208/260?random=92	t
+114	Heavy Duty Cotton Plate	\N	154.67	0	1	2025-05-30 10:12:11.333371	https://picsum.photos/208/260?random=93	t
+115	Small Concrete Computer	\N	191.14	0	2	2025-05-30 10:12:11.335855	https://picsum.photos/208/260?random=94	f
+116	Synergistic Steel Computer	\N	97.82	0	2	2025-05-30 10:12:11.338766	https://picsum.photos/208/260?random=95	t
+117	Ergonomic Concrete Knife	\N	32.7	0	2	2025-05-30 10:12:11.344842	https://picsum.photos/208/260?random=96	t
+118	Ergonomic Aluminum Chair	\N	76.67	0	3	2025-05-30 10:12:11.347979	https://picsum.photos/208/260?random=97	t
+119	Intelligent Bronze Bench	\N	136.83	0	4	2025-05-30 10:12:11.350569	https://picsum.photos/208/260?random=98	t
+120	Sleek Paper Chair	\N	134.4	0	5	2025-05-30 10:12:11.353115	https://picsum.photos/208/260?random=99	t
+\.
+
+
+--
+-- TOC entry 4990 (class 0 OID 16526)
+-- Dependencies: 230
+-- Data for Name: roles; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.roles (id, name, description, created_at, updated_at) FROM stdin;
+1	ADMIN	Quản trị hệ thống	2025-05-23 13:59:33.548677+09	2025-05-23 13:59:33.548677+09
+2	USER	Người dùng thông thường	2025-05-23 13:59:33.548677+09	2025-05-23 13:59:33.548677+09
+3	MANAGER	Quản lý	2025-05-23 13:59:33.548677+09	2025-05-23 13:59:33.548677+09
+\.
+
+
+--
+-- TOC entry 4980 (class 0 OID 16415)
+-- Dependencies: 220
+-- Data for Name: social_account; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.social_account (id, provider, provider_user_id, email, name, user_id, created_at) FROM stdin;
+\.
+
+
+--
+-- TOC entry 4992 (class 0 OID 16561)
+-- Dependencies: 232
+-- Data for Name: token; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.token (id, created_at, device_info, expired_at, ip_address, revoked, revoked_at, token, token_type, user_id) FROM stdin;
+\.
+
+
+--
+-- TOC entry 4986 (class 0 OID 16484)
+-- Dependencies: 226
+-- Data for Name: tokens; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.tokens (id, user_id, token, token_type, expired_at, created_at, revoked, revoked_at, divice_info, ip_address) FROM stdin;
+\.
+
+
+--
+-- TOC entry 4978 (class 0 OID 16390)
+-- Dependencies: 218
+-- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.users (id, user_name, created_at, phone_number, address, password, date_of_birth, facebook_account_id, google_account_id, role_id) FROM stdin;
+1	peter_pan_023	2025-05-28 10:05:14.991398	012564564	123 Main Street, District 10, Hai Phong City	$2a$10$/XZtH.GqpTZHX.2xLfInCuhk5cxPnhJVvWizIc7zTJQt7Z0JPb7N2	1993-05-15 09:00:00	0	0	1
+2	Toanti	2025-05-30 14:36:09.57867	02348729	Fukuoka, Hakata-Ku 123 Japan	$2a$10$1UP/0M6uPY71FxfoxUsrqOaqnmhHwWrl/OuZtKrjALWQR/zK1azLu	2025-05-05 09:00:00	0	0	2
+17	Rabbit	2025-05-30 15:02:49.885381	0347856234	Tokyo, Adachi-Ku 123 Japan	$2a$10$0mlg3hILE5ilUmyJVOZHu.dPfl6IVAGJiKKV4g3ViPbrkaPgUzqke	2025-05-05 09:00:00	0	0	3
+19	Jack	2025-05-30 15:35:07.552091	0234234	Tokyo, Adachi-Ku 123 Japan	$2a$10$/TnXaz9QNUJflMggAmhCJeyhzK7vgGOF3FlFym4l.KAzsS1K2K13K	2025-05-13 09:00:00	0	0	3
+20	Toanti1	2025-06-04 16:09:13.196426	756765765723	Tokyo, Adachi-Ku 123 Japan	$2a$10$lHKxKhCuwHrGKSDg/.GZiergM5HZ7leh9.THnS2l/473bwh7L98X2	2025-06-01 09:00:00	0	0	1
+\.
+
+
+--
+-- TOC entry 5006 (class 0 OID 0)
+-- Dependencies: 221
+-- Name: categories_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.categories_id_seq', 5, true);
+
+
+--
+-- TOC entry 5007 (class 0 OID 0)
+-- Dependencies: 227
+-- Name: orders_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.orders_id_seq', 1, false);
+
+
+--
+-- TOC entry 5008 (class 0 OID 0)
+-- Dependencies: 223
+-- Name: products_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.products_id_seq', 120, true);
+
+
+--
+-- TOC entry 5009 (class 0 OID 0)
+-- Dependencies: 229
+-- Name: roles_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.roles_id_seq', 3, true);
+
+
+--
+-- TOC entry 5010 (class 0 OID 0)
+-- Dependencies: 219
+-- Name: social_account_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.social_account_id_seq', 1, false);
+
+
+--
+-- TOC entry 5011 (class 0 OID 0)
+-- Dependencies: 231
+-- Name: token_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.token_id_seq', 1, false);
+
+
+--
+-- TOC entry 5012 (class 0 OID 0)
+-- Dependencies: 225
+-- Name: tokens_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.tokens_id_seq', 1, false);
+
+
+--
+-- TOC entry 5013 (class 0 OID 0)
+-- Dependencies: 217
+-- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.users_id_seq', 20, true);
+
+
+--
+-- TOC entry 4805 (class 2606 OID 16478)
+-- Name: categories categories_name_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.categories
+    ADD CONSTRAINT categories_name_key UNIQUE (name);
+
+
+--
+-- TOC entry 4807 (class 2606 OID 16459)
+-- Name: categories categories_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.categories
+    ADD CONSTRAINT categories_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 4818 (class 2606 OID 16516)
+-- Name: orders orders_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.orders
+    ADD CONSTRAINT orders_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 4809 (class 2606 OID 16620)
+-- Name: products products_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.products
+    ADD CONSTRAINT products_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 4820 (class 2606 OID 16557)
+-- Name: roles roles_name_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.roles
+    ADD CONSTRAINT roles_name_key UNIQUE (name);
+
+
+--
+-- TOC entry 4822 (class 2606 OID 16535)
+-- Name: roles roles_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.roles
+    ADD CONSTRAINT roles_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 4803 (class 2606 OID 16421)
+-- Name: social_account social_account_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.social_account
+    ADD CONSTRAINT social_account_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 4824 (class 2606 OID 16567)
+-- Name: token token_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.token
+    ADD CONSTRAINT token_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 4814 (class 2606 OID 16493)
+-- Name: tokens tokens_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.tokens
+    ADD CONSTRAINT tokens_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 4816 (class 2606 OID 16495)
+-- Name: tokens unique_token; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.tokens
+    ADD CONSTRAINT unique_token UNIQUE (token);
+
+
+--
+-- TOC entry 4801 (class 2606 OID 16570)
+-- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 4810 (class 1259 OID 16503)
+-- Name: idx_tokens_expires_at; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_tokens_expires_at ON public.tokens USING btree (expired_at);
+
+
+--
+-- TOC entry 4811 (class 1259 OID 16502)
+-- Name: idx_tokens_token; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_tokens_token ON public.tokens USING btree (token);
+
+
+--
+-- TOC entry 4812 (class 1259 OID 16501)
+-- Name: idx_tokens_user_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_tokens_user_id ON public.tokens USING btree (user_id);
+
+
+--
+-- TOC entry 4831 (class 2620 OID 16539)
+-- Name: roles update_roles_modtime; Type: TRIGGER; Schema: public; Owner: postgres
+--
+
+CREATE TRIGGER update_roles_modtime BEFORE UPDATE ON public.roles FOR EACH ROW EXECUTE FUNCTION public.update_role_modified_column();
+
+
+--
+-- TOC entry 4827 (class 2606 OID 16634)
+-- Name: products fk_category; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.products
+    ADD CONSTRAINT fk_category FOREIGN KEY (category_id) REFERENCES public.categories(id) ON DELETE SET NULL;
+
+
+--
+-- TOC entry 4828 (class 2606 OID 16576)
+-- Name: tokens fk_user; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.tokens
+    ADD CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 4826 (class 2606 OID 16571)
+-- Name: social_account fk_user_social; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.social_account
+    ADD CONSTRAINT fk_user_social FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 4825 (class 2606 OID 16544)
+-- Name: users fk_users_roles; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT fk_users_roles FOREIGN KEY (role_id) REFERENCES public.roles(id);
+
+
+--
+-- TOC entry 4830 (class 2606 OID 16613)
+-- Name: token fkj8rfw4x0wjjyibfqq566j4qng; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.token
+    ADD CONSTRAINT fkj8rfw4x0wjjyibfqq566j4qng FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- TOC entry 4829 (class 2606 OID 16581)
+-- Name: orders orders_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.orders
+    ADD CONSTRAINT orders_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+-- Completed on 2025-06-05 15:07:46
+
+--
+-- PostgreSQL database dump complete
+--
+
