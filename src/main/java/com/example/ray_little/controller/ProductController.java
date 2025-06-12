@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -31,7 +32,7 @@ public class ProductController {
       return ResponseEntity.badRequest().body(errorMsg);
     }
     productServiceImp.createProduct(productDTO);
-    return ResponseEntity.ok("Product Created Successful !!: " + productDTO);
+    return ResponseEntity.status(HttpStatus.CREATED).body(productDTO);
   }
 
   @GetMapping("")

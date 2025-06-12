@@ -1,5 +1,6 @@
 package com.example.ray_little.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -25,9 +26,14 @@ public class ProductDTO {
   @NotBlank(message = "Image URL cannot be blank")
   private String thumbnail;
 
+  @JsonProperty("best_seller")
   private boolean bestSeller;
 
+  @JsonProperty("category_id")
   @NotNull(message = "Category is required")
+  private Long categoryId;
+
   private CategoryDTO category;
+
   // Constructors, Getters, Setters
 }

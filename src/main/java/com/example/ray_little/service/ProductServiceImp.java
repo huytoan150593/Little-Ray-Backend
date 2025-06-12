@@ -24,6 +24,7 @@ public class ProductServiceImp implements ProductService {
 
   @Override
   public void createProduct(ProductDTO productDTO) {
+
     Product newProduct = productMapper.toEntity(productDTO, new Product());
     productRepository.save(newProduct);
   }

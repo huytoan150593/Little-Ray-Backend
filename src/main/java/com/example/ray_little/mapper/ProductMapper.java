@@ -19,7 +19,7 @@ public class ProductMapper {
     product.setThumbnail(dto.getThumbnail());
     product.setBestSeller(dto.isBestSeller());
 
-    Category category = categoryRepository.findById(dto.getCategory().getId())
+    Category category = categoryRepository.findById(dto.getCategoryId())
                           .orElseThrow(() -> new IllegalArgumentException("Invalid category ID"));
 
     product.setCategory(category);
